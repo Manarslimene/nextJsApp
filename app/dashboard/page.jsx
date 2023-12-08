@@ -1,5 +1,17 @@
-import UserInfo from "@/components/UserInfo";
+import Dashboard from '@/components/Dashboard';
+import Layout from '@/components/header/Layout';
+import React from 'react';
 
-export default function Dashboard() {
-  return <UserInfo />;
-}
+const PageDashboard = () => {
+ 
+  return(
+    <Layout>
+      <div>
+      <Dashboard/>
+      </div>
+    </Layout>
+  )
+ 
+};
+
+export default PageDashboard;

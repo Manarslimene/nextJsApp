@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 export default function RegisterForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [adrrese, setAdressse] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -75,6 +77,16 @@ export default function RegisterForm() {
             onChange={(e) => setEmail(e.target.value)}
             type="text"
             placeholder="Email"
+          />
+          <input
+            onChange={(e) => setAdressse(e.target.value)}
+            type="text"
+            placeholder="Adresse"
+          />
+          <input
+            onChange={(e) => setPhone(e.target.value)}
+            type="text"
+            placeholder="Phone"
           />
           <input
             onChange={(e) => setPassword(e.target.value)}
