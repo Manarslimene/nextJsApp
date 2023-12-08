@@ -4,12 +4,13 @@ import { NextResponse } from "next/server";
 
 import Product from "@/models/product";
 
-export async function POST(req) {
+export async function POST(request) {
+  const requestBody = await request.json();
+
   try {
-    const {name } = await req.json();
-   
     await connectMongoDB();
-    await Product.create({ name });
+    const { name, prix, cat } = requestBody;
+    await Product.create({ name, prix, cat });
 
     return NextResponse.json({ message: "Produit Ajouter." }, { status: 201 });
   } catch (error) {
