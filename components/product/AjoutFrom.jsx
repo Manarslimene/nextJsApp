@@ -1,6 +1,6 @@
 "use client";
 //import Link from "next/link";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 // ... autres imports ...
@@ -10,7 +10,17 @@ export default function AjoutForm() {
     const [prix, setPrix] = useState("");
     const [cat, setCat] = useState("");
     const [error, setError] = useState("");
+    const [categoryList, setCategoryList] = useState([]);
     const router = useRouter();
+    
+
+    useEffect(() => {
+        fetch('/api/listingCategory')
+          .then((res) => res.json())
+          .then((response) => {
+            setCategoryList(response.categories); // Add this line
+          });
+      }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -67,11 +77,16 @@ export default function AjoutForm() {
                     </label>
                     <label>
                         Catégorie:
-                        <input
-                            onChange={(e) => setCat(e.target.value)}
-                            type="text"
-                            placeholder="Category"
-                        />
+                        <select onChange={(e) => setCat(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                <option >
+                                    Select Category
+                                </option>
+                            {categoryList.map((category) => (
+                                <option key={category._id} value={category.label}>
+                                    {category.label}
+                                </option>
+                            ))}
+                        </select>
                     </label>
                     <button className="bg-green-600 text-white font-bold cursor-pointer px-6 py-2">Add Product</button>
                 </form>
