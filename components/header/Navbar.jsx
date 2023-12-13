@@ -12,7 +12,7 @@ export default function Navbar() {
   const navigation = [
     { name: 'Dashboard', href: '/', current: router === '/dashboard' },
     { name: 'Products', href: '/listing', current: router === '/listing' ||  router === '/produit' },
-    { name: 'Projects', href: '#', current: false },
+    { name: 'Catalogue', href: '#', current: router === '/catalogue' },
     { name: 'Calendar', href: '#', current: false },
   ]
 
