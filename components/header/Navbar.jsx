@@ -13,6 +13,7 @@ export default function Navbar() {
     { name: 'Dashboard', href: '/', current: router === '/dashboard' },
     { name: 'Products', href: '/listing', current: router === '/listing' ||  router === '/produit' },
     { name: 'Catalogue', href: '#', current: router === '/catalogue' },
+    { name: 'Category', href: '/listingCategory', current: router === '/listingCategory' || router === '/category' },
     { name: 'Calendar', href: '#', current: false },
   ]
 

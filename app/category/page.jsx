@@ -1,5 +1,5 @@
 
-import AjoutForm from "@/components/product/AjoutFrom";
+import AjoutForm from "@/components/category/AjoutFrom";
 import Layout from "@/components/header/Layout";
 
 export default async function Produit() {

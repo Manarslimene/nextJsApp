@@ -1,6 +1,6 @@
 // pages/listingProductPage.js
 
-import ListingProduct from "@/components/ListingProdcut";
+import ListingProduct from "@/components/product/ListingProdcut";
 import Layout from "@/components/header/Layout";
 
 
