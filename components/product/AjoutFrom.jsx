@@ -2,7 +2,7 @@
 //import Link from "next/link";
 import { useState,useEffect } from "react";
 import { useRouter } from "next/navigation";
-
+import Swal from 'sweetalert2';
 // ... autres imports ...
 
 export default function AjoutForm() {
@@ -30,6 +30,17 @@ export default function AjoutForm() {
         }
 
         try {
+            const loadingSwal = Swal.fire({
+                title: 'Loading...',
+                html: '<i class="fas fa-spinner fa-spin"></i>',
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+        
             const res = await fetch("api/ajout", {
                 method: "POST",
                 headers: {
@@ -40,14 +51,33 @@ export default function AjoutForm() {
                 }),
             });
 
+            loadingSwal.close();
             if (res.ok) {
                 const form = e.target;
                 form.reset();
-                router.push("/");
+                router.push("/listing");
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Product registered successfully!',
+                    showConfirmButton: true,
+                    timer: 5000 // close after 1.5 seconds
+                });
             } else {
-                console.log("Product registration failed.");
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Product registration failed!',
+                  text: 'Please try again later.',
+                  showConfirmButton: true,
+               });
             }
         } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Product registration failed!',
+                text: 'Please try again later.',
+                showConfirmButton: true,
+             });
             console.log("Error during: ", error);
         }
     };
@@ -76,7 +106,6 @@ export default function AjoutForm() {
                         />
                     </label>
                     <label>
-                        Catégorie:
                         <select onChange={(e) => setCat(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                 <option >
                                     Select Category

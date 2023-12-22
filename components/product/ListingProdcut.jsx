@@ -2,9 +2,9 @@
 //import Link from "next/link";
 import { Card, Typography } from "@material-tailwind/react";
 import { useState, useEffect } from 'react'
-import { useParams } from "next/navigation";
-const TABLE_HEAD = ["Name", "Price" ,"Category", ""];
-
+import { useRouter } from "next/navigation";
+const TABLE_HEAD = ["Name", "Price", "Category", ""];
+import Swal from 'sweetalert2';
 
 // ... (import statements)
 
@@ -12,7 +12,7 @@ export default function ListingProduct() {
   const [products, setProducts] = useState(null);
   const [editedProductId, setEditedProductId] = useState(null);
   const [editedProduct, setEditedProduct] = useState({ name: "", prix: "", cat: "" });
-
+  const router = useRouter();
   useEffect(() => {
     fetch('/api/listing')
       .then((res) => res.json())
@@ -23,28 +23,56 @@ export default function ListingProduct() {
   }, []);
 
   const handleDelete = (productId) => {
-    if (confirm("Are you sure you want to delete this product?")) {
-      fetch(`/api/delete/${productId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .then((res) => res.json())
-      .then((response) => {
-        if (response.success) {
-          alert(response.message);
-          // Mettez à jour la liste des produits après la suppression du produit
-          setProducts(products.filter((product) => product._id !== productId));
-        } else {
-          alert(response.message);
-        }
-      })
-      .catch((error) => {
-        console.error("Error deleting product", error);
-        alert('Error deleting product');
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will not be able to remove this product!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`/api/delete/${productId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+          .then((response) => {
+            console.log(response);
+            if (response.ok) {
+              // Mettez à jour la liste des produits après la suppression du produit
+              setProducts(products.filter((product) => product._id !== productId));
+              router.push("/listing");
+              Swal.fire({
+                icon: 'success',
+                title: 'Product deleted with successful!',
+                showConfirmButton: true,
+                timer: 5000 // close after 1.5 seconds
+              });
+            } else {
+              // Mettez à jour la liste des produits après la suppression du produit
+              setProducts(products.filter((product) => product._id !== productId));
+              router.push("/listing");
+              Swal.fire({
+                icon: 'error',
+                title: response.message,
+                showConfirmButton: true,
+                timer: 5000 // close after 1.5 seconds
+              });
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting product", error);
+            Swal.fire({
+              icon: 'error',
+              title: error,
+              showConfirmButton: true,
+              timer: 5000 // close after 1.5 seconds
+            });
+          });
+      }
+    });
   };
 
   const handleEdit = (productId) => {
@@ -56,8 +84,18 @@ export default function ListingProduct() {
   const handleUpdateProduct = (editedProductId) => async (e) => {
     e.preventDefault();
     //const Product = products.find((product) => product._id === editedProductId);
-   
-    try{
+
+    try {
+      const loadingSwal = Swal.fire({
+        title: 'Loading...',
+        html: '<i class="fas fa-spinner fa-spin"></i>',
+        allowOutsideClick: false,
+        showCancelButton: false,
+        showConfirmButton: false,
+        onBeforeOpen: () => {
+            Swal.showLoading();
+        },
+    });
       const response = await fetch(`/api/update/${editedProductId}`, {
         method: 'PUT',
         headers: {
@@ -65,17 +103,30 @@ export default function ListingProduct() {
         },
         body: JSON.stringify(editedProduct),
       });
-
+      loadingSwal.close();
       if (response.ok) {
-        //const updatedProduct = await response.json();
-        // Handle the updated product data as needed
-        alert('Product updated successfully');
+         // Update the products state with the modified product
+      const updatedProducts = products.map((product) => {
+        if (product._id === editedProductId) {
+          return editedProduct;
+        }
+        return product;
+      });
+
+      setProducts(updatedProducts);
+        setEditedProductId(null);
+        Swal.fire({
+          icon: 'success',
+          title: 'Product Updated with successful!',
+          showConfirmButton: true,
+          timer: 5000 // close after 1.5 seconds
+      });
       } else {
         // Handle error response
         console.error('Failed to update product');
         alert('Failed to update product');
       }
-    }catch{
+    } catch {
       alert("Probleme");
     }
   };
@@ -119,7 +170,7 @@ export default function ListingProduct() {
                 <tr key={product._id}>
                   <td className={classes}>
                     {editedProductId === product._id ? (
-                      <form onSubmit={handleUpdateProduct(product._id)}>    
+                      <form onSubmit={handleUpdateProduct(product._id)}>
                         <input
                           type="text"
                           placeholder="Name"
@@ -138,7 +189,7 @@ export default function ListingProduct() {
                           value={editedProduct.cat}
                           onChange={(e) => setEditedProduct({ ...editedProduct, cat: e.target.value })}
                         />
-                        <button type="submit">Save</button>
+                        <button type="submit" className="font-medium bg-yellow-500 text-white px-4 py-2 rounded-lg">Save</button>
                       </form>
                     ) : (
                       <Typography
@@ -148,43 +199,44 @@ export default function ListingProduct() {
                       >
                         {product.name}
                       </Typography>
-      
+
                     )}
                   </td>
-                      <td className={classes}>
-                      <Typography
-                        variant="small"
-                        color="blue-gray"
-                        className="font-normal"
-                      >
-                        {product.prix}
-                      </Typography>
-                      </td>
-                      <td className={classes}>
-                      <Typography
-                        variant="small"
-                        color="blue-gray"
-                        className="font-normal"
-                      >
-                        {product.cat}
-                      </Typography>
-                      </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {product.prix}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {product.cat}
+                    </Typography>
+                  </td>
                   <td className={classes}>
                     <Typography
                       as="button"
                       onClick={() => handleEdit(product._id)}
                       variant="small"
                       color="blue-gray"
-                      className="font-medium"
+                      className="font-medium bg-blue-500 text-white px-4 py-2 rounded-lg"
                     >
                       Edit
                     </Typography>
+
                     <Typography
                       as="button"
                       onClick={() => handleDelete(product._id)}
                       variant="small"
                       color="red"
-                      className="font-medium"
+                      className="font-medium bg-red-500 text-white px-4 py-2 rounded-lg"
                     >
                       Delete
                     </Typography>
